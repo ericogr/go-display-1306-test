@@ -3,26 +3,19 @@ package main
 import (
 	"flag"
 	"fmt"
-	"image"
 	"log"
 	"time"
 
-	"image/color"
-	"image/draw"
-
 	"github.com/ericogr/go-display-1306-test/pkg/drawbasic"
-	"golang.org/x/image/font"
-	"golang.org/x/image/font/basicfont"
+	"github.com/fogleman/gg"
 
-	"golang.org/x/image/math/fixed"
 	"periph.io/x/conn/v3/i2c/i2creg"
 	"periph.io/x/devices/v3/ssd1306"
-	"periph.io/x/devices/v3/ssd1306/image1bit"
 	"periph.io/x/host/v3"
 )
 
 func main() {
-	fmt.Println("Starting...")
+	fmt.Println("Initializing...")
 
 	// external parameters
 	i2cBus := flag.String("bus", "/dev/i2c-3", "i2c bus, for ex. /dev/i2c-3")
@@ -35,6 +28,7 @@ func main() {
 		log.Fatal(err)
 	}
 
+	fmt.Printf("Opening display %s size %dx%d\n", *i2cBus, *displayWidth, *displayHeight)
 	busCloser, err := i2creg.Open(*i2cBus)
 	if err != nil {
 		log.Fatal(err)
@@ -54,38 +48,14 @@ func main() {
 		log.Fatalf("failed to initialize ssd1306: %v", err)
 	}
 
-	fmt.Println("Drawing...")
+	fmt.Println("Start drawing...")
+	displayContext := gg.NewContext(*displayWidth, *displayHeight)
 
-	img := image1bit.NewVerticalLSB(dev.Bounds())
-	f := basicfont.Face7x13
-	drawer := font.Drawer{
-		Dst:  img,
-		Src:  &image.Uniform{image1bit.On},
-		Face: f,
-		Dot:  fixed.P(0, 0),
-	}
-
-	var contador = 0
+	counter := 0
 	for {
-		clean(img)
-		drawbasic.DrawBorder(img)
-		drawer.Dot = fixed.Point26_6{
-			// X: (fixed.I(128) - drawer.MeasureString("Contagem: 111")) / 2,
-			X: fixed.I(5),
-			Y: fixed.I(20),
-		}
-		drawer.DrawString(fmt.Sprintf("Counter: %d", contador))
-		drawer.Dot.X = 0
-		if err := dev.Draw(dev.Bounds(), img, image.Point{}); err != nil {
-			log.Fatal(err)
-		}
-
-		time.Sleep(25 * time.Millisecond)
-		contador++
+		drawbasic.DrawProgressBar(displayContext, float64(*displayWidth), float64(*displayHeight), float64(counter%100+1), 100)
+		drawbasic.Draw(dev, displayContext.Image())
+		time.Sleep(50 * time.Millisecond)
+		counter++
 	}
-
-}
-
-func clean(img *image1bit.VerticalLSB) {
-	draw.Draw(img, img.Bounds(), &image.Uniform{color.Transparent}, image.Point{}, draw.Src)
 }
