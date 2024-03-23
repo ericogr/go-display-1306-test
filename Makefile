@@ -1,4 +1,5 @@
 BIN=display-test
+BIN_PATH=bin
 REMOTE_HOST=erico@192.168.0.35
 REMOTE_DIR=/tmp
 
@@ -8,11 +9,11 @@ all: build copy run
 
 build:
 	@echo "Building..."
-	@env GOOS=linux GOARCH=arm64 GOARM=5 go build -o $(BIN) ./cmd/display-test
+	@env GOOS=linux GOARCH=arm64 GOARM=5 go build -o $(BIN_PATH)/$(BIN) ./cmd/display-test
 
 copy: build
 	@echo "Copying..."
-	@rsync -avz $(BIN) $(REMOTE_HOST):$(REMOTE_DIR)
+	@rsync -avz $(BIN_PATH)/$(BIN) $(REMOTE_HOST):$(REMOTE_DIR)
 
 run: copy
 	@echo "Running..."
@@ -20,4 +21,4 @@ run: copy
 
 clean:
 	@echo "Cleaning..."
-	@rm -f $(BIN)
+	@rm -f $(BIN_PATH)/$(BIN)
