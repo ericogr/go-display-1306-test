@@ -22,6 +22,7 @@ func main() {
 	displayWidth := flag.Int("with", 128, "i2c display width, for ex. 128")
 	displayHeight := flag.Int("height", 32, "i2c display width, for ex. 32")
 	sequential := flag.Bool("sequential", true, "Sequential corresponds to the Sequential/Alternative COM pin configuration in the OLED panel hardware")
+	flag.Parse()
 
 	// Make sure periph is initialized.
 	if _, err := host.Init(); err != nil {
