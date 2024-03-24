@@ -23,7 +23,7 @@ func DrawProgressBar(displayContext *gg.Context, width, height, value, max float
 	displayContext.DrawRoundedRectangle(0, 0, float64(width), float64(height), 5)
 	displayContext.Stroke()
 	displayContext.DrawString(
-		fmt.Sprintf("Progress: %d", int(value)),
+		fmt.Sprintf("Progress: %d%%", int(value)),
 		3,
 		11,
 	)
