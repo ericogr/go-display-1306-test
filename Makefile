@@ -4,7 +4,7 @@ BIN := display-test
 BIN_PATH := bin
 REMOTE_HOST := erico@192.168.0.35
 REMOTE_DIR := /tmp
-WATCH_DIR := .
+WATCH_DIR := ./
 DISPLAY_BUS := /dev/i2c-3
 DISPLAY_WIDTH := 128
 DISPLAY_HEIGHT := 32
@@ -13,7 +13,7 @@ DISPLAY_SEQUENTIAL := true
 #--
 PARAMETERS="-bus=$(DISPLAY_BUS) -with=$(DISPLAY_WIDTH) -height=$(DISPLAY_HEIGHT) -sequential=$(DISPLAY_SEQUENTIAL)"
 
-.PHONY: all clean build copy run
+.PHONY: all clean build copy run watch
 
 all: build copy run
 
@@ -23,13 +23,12 @@ build:
 
 copy: build
 	@echo "Copying..."
-	@rsync -avz $(BIN_PATH)/$(BIN) $(REMOTE_HOST):$(REMOTE_DIR)
+	@rsync -avz $(BIN_PATH)/$(BIN) $(REMOTE_HOST):$(REMOTE_DIR) >/dev/null
 
 run: copy stop
 	@echo "Running..."
 	@echo "Parameters:" $(PARAMETERS)
-	@echo ssh $(REMOTE_HOST) $(REMOTE_DIR)/$(BIN) $(PARAMETERS)&
-	@ssh $(REMOTE_HOST) $(REMOTE_DIR)/$(BIN) $(PARAMETERS)&
+	@ssh $(REMOTE_HOST) $(REMOTE_DIR)/$(BIN) $(PARAMETERS) > /dev/null &
 
 stop:
 	@echo "Stopping..."
@@ -40,7 +39,6 @@ clean:
 	@rm -f $(BIN_PATH)/$(BIN)
 
 watch: all
-	@echo "Monitoring... $(WATCH_DIR)..."
-	@while inotifywait -r -e modify,create,delete --include '\.go' $(WATCH_DIR); do \
-		$(MAKE) watch; \
-	done
+	@echo "Watching $(WATCH_DIR)"
+	@inotifywait -r -e modify,create,delete --include '\.go' $(WATCH_DIR) > /dev/null 2>&1;
+	$(MAKE) watch;

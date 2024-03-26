@@ -29,6 +29,8 @@ func DrawProgressBar(displayContext *gg.Context, width, height, value, max float
 	)
 	w := (width - 5) / 100 * (max / 100 * value)
 	displayContext.DrawRectangle(3, 18, w, 10)
-	displayContext.SetLineWidth(1)
 	displayContext.Fill()
+	displayContext.SetLineWidth(1)
+	displayContext.DrawRectangle(3, 18, 122, 10)
+	displayContext.Stroke()
 }

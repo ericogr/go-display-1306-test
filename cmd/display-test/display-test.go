@@ -51,7 +51,6 @@ func main() {
 
 	fmt.Println("Start drawing...")
 	displayContext := gg.NewContext(*displayWidth, *displayHeight)
-
 	counter := 0
 	for {
 		drawbasic.DrawProgressBar(displayContext, float64(*displayWidth), float64(*displayHeight), float64(counter%100+1), 100)
