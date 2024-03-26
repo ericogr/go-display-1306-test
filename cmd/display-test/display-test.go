@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"image/color"
 	"log"
 	"time"
 
@@ -51,11 +52,20 @@ func main() {
 
 	fmt.Println("Start drawing...")
 	displayContext := gg.NewContext(*displayWidth, *displayHeight)
-	counter := 0
+	beat := false
 	for {
-		drawbasic.DrawProgressBar(displayContext, float64(*displayWidth), float64(*displayHeight), float64(counter%100+1), 100)
+		drawbasic.Clear(displayContext)
+
+		displayContext.SetColor(color.White)
+		displayContext.DrawCircle(120, 8, 5)
+		if beat {
+			displayContext.Stroke()
+		} else {
+			displayContext.Fill()
+		}
+		beat = !beat
+
+		drawbasic.DrawResources(displayContext, time.Second, float64(*displayWidth), float64(*displayHeight))
 		drawbasic.Draw(dev, displayContext.Image())
-		time.Sleep(50 * time.Millisecond)
-		counter++
 	}
 }
