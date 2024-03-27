@@ -13,24 +13,24 @@ DISPLAY_SEQUENTIAL := true
 #--
 PARAMETERS="-bus=$(DISPLAY_BUS) -with=$(DISPLAY_WIDTH) -height=$(DISPLAY_HEIGHT) -sequential=$(DISPLAY_SEQUENTIAL)"
 
-.PHONY: all clean build copy run watch
+.PHONY: all clean build copy_remote run_remote watch stop_remote
 
-all: build copy run
+all: build copy_remote run_remote
 
 build:
 	@echo "Building..."
-	@env GOOS=linux GOARCH=arm64 GOARM=5 go build -o $(BIN_PATH)/$(BIN) ./cmd/display-test
+	@env GOOS=linux GOARCH=arm64 GOARM=5 go build -o $(BIN_PATH)/$(BIN) ./cmd/display-test || true
 
-copy: build
+copy_remote: build
 	@echo "Copying..."
 	@rsync -avz $(BIN_PATH)/$(BIN) $(REMOTE_HOST):$(REMOTE_DIR) >/dev/null
 
-run: copy stop
+run_remote: copy_remote stop_remote
 	@echo "Running..."
 	@echo "Parameters:" $(PARAMETERS)
 	@ssh $(REMOTE_HOST) $(REMOTE_DIR)/$(BIN) $(PARAMETERS) > /dev/null &
 
-stop:
+stop_remote:
 	@echo "Stopping..."
 	@ssh $(REMOTE_HOST) pkill $(BIN) || true
 
